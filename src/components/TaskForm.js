@@ -17,12 +17,15 @@ const TaskForm = ({ onAdd }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.title || !formData.description) {
+    const { title, description } = formData;
+
+    if (!title.trim() || !description.trim()) {
       alert('Please enter title and description');
       return;
     }
-    onAdd(formData); // Send task to parent (TasksPage)
-    setFormData({ title: '', description: '', status: 'To Do' }); // Reset
+
+    onAdd(formData); // Send task data to parent
+    setFormData({ title: '', description: '', status: 'To Do' }); // Reset form
   };
 
   return (
@@ -51,9 +54,9 @@ const TaskForm = ({ onAdd }) => {
         onChange={handleChange}
         style={{ marginRight: '10px' }}
       >
-        <option>To Do</option>
-        <option>In Progress</option>
-        <option>Done</option>
+        <option value="To Do">To Do</option>
+        <option value="In Progress">In Progress</option>
+        <option value="Done">Done</option>
       </select>
       <button type="submit">Add Task</button>
     </form>
