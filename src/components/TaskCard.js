@@ -28,10 +28,11 @@ const TaskCard = ({ task, onDelete, onEdit, onAddComment }) => {
     setIsEditing(false);
   };
 
-  const handleAddComment = () => {
+  const handleAddComment = (e) => {
+    e.preventDefault();  // Prevent form submit or page reload
     if (comment.trim()) {
       const newComment = {
-        author: 'Kushulatha', // You can change this to dynamic user later
+        author: 'Kushulatha', // TODO: Replace with dynamic user
         text: comment.trim(),
         createdAt: new Date().toISOString(),
       };
@@ -40,7 +41,7 @@ const TaskCard = ({ task, onDelete, onEdit, onAddComment }) => {
       setComments(updatedComments);
       setComment('');
 
-      // Update backend
+      // Call parent handler to update backend
       onAddComment(task._id, updatedComments);
     }
   };
@@ -98,16 +99,18 @@ const TaskCard = ({ task, onDelete, onEdit, onAddComment }) => {
 
           {/* Comments Section */}
           <div style={{ marginTop: '10px' }}>
-            <input
-              type="text"
-              value={comment}
-              placeholder="Add comment"
-              onChange={(e) => setComment(e.target.value)}
-              style={{ width: '100%', marginBottom: '5px', padding: '4px' }}
-            />
-            <button onClick={handleAddComment} style={{ marginBottom: '10px' }}>
-              Add Comment
-            </button>
+            <form onSubmit={handleAddComment}>
+              <input
+                type="text"
+                value={comment}
+                placeholder="Add comment"
+                onChange={(e) => setComment(e.target.value)}
+                style={{ width: '100%', marginBottom: '5px', padding: '4px' }}
+              />
+              <button type="submit" style={{ marginBottom: '10px' }}>
+                Add Comment
+              </button>
+            </form>
 
             {comments.length > 0 && (
               <div>

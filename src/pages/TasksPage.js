@@ -61,12 +61,20 @@ const TasksPage = () => {
     }
   };
 
-  const addComment = async (taskId, comment) => {
+  // Updated: addComment expects updated comments array from TaskCard
+  const addComment = async (taskId, updatedComments) => {
     try {
-      const res = await axios.put(`/tasks/${taskId}`, {
-        ...tasks.find((t) => t._id === taskId),
-        comments: [...(tasks.find((t) => t._id === taskId).comments || []), comment]
-      });
+      // Find the full task to update all fields except comments
+      const taskToUpdate = tasks.find((t) => t._id === taskId);
+      if (!taskToUpdate) return;
+
+      // Send only updated comments array to backend with other unchanged fields
+      const updatedTaskData = {
+        ...taskToUpdate,
+        comments: updatedComments
+      };
+
+      const res = await axios.put(`/tasks/${taskId}`, updatedTaskData);
       setTasks((prev) =>
         prev.map((task) => (task._id === taskId ? res.data : task))
       );
@@ -103,6 +111,7 @@ const TasksPage = () => {
     }
   };
 
+  // Gantt expects tasks in specific shape — this is placeholder data
   const ganttTasks = tasks.map((task) => ({
     start: new Date(),
     end: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
@@ -114,9 +123,10 @@ const TasksPage = () => {
     dependencies: [],
   }));
 
+  // Data for Analytics chart
   const chartData = columnsOrder.map((status) => ({
     name: status,
-    count: tasks.filter((t) => t.status === status).length
+    count: tasks.filter((t) => t.status === status).length,
   }));
 
   return (
@@ -138,6 +148,7 @@ const TasksPage = () => {
         </ResponsiveContainer>
       </div>
 
+      {/* Kanban Drag & Drop */}
       <DragDropContext onDragEnd={onDragEnd}>
         <div style={{ display: 'flex', gap: '20px', marginTop: '30px' }}>
           {columnsOrder.map((status) => {
@@ -182,7 +193,7 @@ const TasksPage = () => {
                               task={task}
                               onDelete={deleteTask}
                               onEdit={editTask}
-                              onAddComment={addComment}
+                              onAddComment={addComment} // pass comment handler here
                             />
                           </div>
                         )}
@@ -198,6 +209,7 @@ const TasksPage = () => {
         </div>
       </DragDropContext>
 
+      {/* Gantt Chart */}
       <GanttChart tasks={ganttTasks} />
     </div>
   );
